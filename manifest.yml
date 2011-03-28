@@ -1,0 +1,4 @@
+requires:
+    com_meego_ratings:
+        - {type: github, user: nemein, repository:  com_meego_ratings, branch: master}
+
