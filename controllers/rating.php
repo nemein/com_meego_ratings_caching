@@ -21,6 +21,9 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                 || $this->object->comment)
             {
                 $this->object->create();
+                $args = array();
+                $args['to'] = $this->object->to;
+                $this->calculate_average($args);
             }
             // TODO: add uimessage of $e->getMessage();
             $this->relocate_to_read();
@@ -72,12 +75,10 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
     }
 
     /**
-     * Sets the average rating of the package
+     * Calculates the average rating of the package
      * Sets the flag showing if the package was ever rated or not
-     * Sets $this->data['stars'] that can be directly put to pages showing
-     * the stars
      */
-    public function get_average(array $args)
+    public function calculate_average(array $args)
     {
         $this->data['to'] = midgard_object_class::get_object_by_guid($args['to']);
 
@@ -182,6 +183,54 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
             $cache_record->ratingvalue = $this->data['average'];
             $cache_record->comments = $num_of_comments;
             $cache_record->create();
+        }
+    }
+
+    /**
+     * Sets the average rating of the package
+     * Sets $this->data['stars'] that can be directly put to pages showing
+     * the stars
+     */
+    public function get_average(array $args)
+    {
+        $this->data['to'] = midgard_object_class::get_object_by_guid($args['to']);
+
+        if ( ! $this->data['to'] )
+        {
+            throw new midgardmvc_exception_notfound("rating target not found");
+        }
+
+        $this->data['repository'] = new com_meego_repository($this->data['to']->repository);
+
+        parent::get_read($args);
+
+        $storage = new midgard_query_storage('com_meego_package_statistics_calculated');
+        $q = new midgard_query_select($storage);
+        $q->set_constraint
+        (
+            new midgard_query_constraint
+            (
+                new midgard_query_property('repository', $storage),
+                '=',
+                new midgard_query_value($this->data['repository']->id)
+            )
+        );
+
+        $q->execute();
+        $cache = $q->list_objects();
+
+        $this->data['average'] = 0;
+        $this->data['ratings'] = 0;
+        $this->data['comments'] = 0;
+        $this->data['rated'] = false;
+
+        //load data from cache
+        if (count($cache) > 0)
+        {
+            $this->data['average'] = $cache[0]->ratingvalue;
+            $this->data['ratings'] = $cache[0]->ratings;
+            $this->data['comments'] = $cache[0]->comments;
+            $this->data['rated'] = true;
         }
 
         $this->get_stars($this->data['average']);
