@@ -86,7 +86,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
             throw new midgardmvc_exception_notfound("rating target not found");
         }
 
-        $this->data['repository'] = midgard_object_class::get_object_by_guid($this->data['to']->repository);
+        $this->data['repository'] = new com_meego_repository($this->data['to']->repository);
 
         parent::get_read($args);
 
@@ -118,7 +118,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
             (
                 new midgard_query_property('repository', $storage),
                 '=',
-                new midgard_query_value($this->data['repository']->guid)
+                new midgard_query_value($this->data['repository']->id)
             )
         );
 
@@ -164,17 +164,20 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                 $this->data['average'] = round($sum / $num_of_valid_ratings, 1);
             }
         }
-        if (count($cache))
+
+        if (   count($cache) > 0
+            && $cache[0]->ratings != $num_of_valid_ratings)
         {
-            $cache->ratings = $num_of_valid_ratings;
-            $cache->ratingvalue = $this->data['average'];
-            $cache->comments = $num_of_comments;
-            $cache->update();
+            $cache[0]->ratings = $num_of_valid_ratings;
+            $cache[0]->ratingvalue = $this->data['average'];
+            $cache[0]->comments = $num_of_comments;
+            $cache[0]->update();
         }
         else
         {
             $cache_record = new com_meego_package_statistics_calculated();
             $cache_record->packagename = $this->data['to']->name;
+            $cache_record->repository = $this->data['repository']->id;
             $cache_record->ratings = $num_of_valid_ratings;
             $cache_record->ratingvalue = $this->data['average'];
             $cache_record->comments = $num_of_comments;

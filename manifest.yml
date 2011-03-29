@@ -1,11 +1,17 @@
+extends: com_meego_ratings
 requires:
     com_meego_ratings:
         - {type: github, user: nemein, repository:  com_meego_ratings, branch: master}
-extends: com_meego_ratings
 
 routes:
+    list_ratings:
+        path: '/{$to}'
+        controller: com_meego_ratings_caching_controllers_rating
+        action: ratings
+        template_aliases:
+            content: cmr-show-ratings
     rating_create:
-        path: '/ratings/create/{$to}'
+        path: '/create/{$to}'
         controller: com_meego_ratings_caching_controllers_rating
         action: create
         template_aliases:
