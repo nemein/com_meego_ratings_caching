@@ -325,4 +325,14 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
 
         $this->get_stars($this->data['average']);
     }
+
+   /**
+     * Sets $this->data['stars'] with an HTML snippet showing the stars
+     */
+    public function get_stars($rating)
+    {
+        $this->data['stars'] = $this->draw_stars($rating);
+        $this->data['stars'] = ' (' . $this->data['numberofratings'] . ')';
+    }
+
 }
