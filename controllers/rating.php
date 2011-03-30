@@ -7,6 +7,55 @@
  */
 class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_controllers_rating
 {
+
+    public function load_form()
+    {
+       $this->form = midgardmvc_helper_forms::create('com_meego_ratings_rating');
+//        $this->request->resolve_node('/ratings/create');
+        $this->form->set_action
+        (
+            midgardmvc_core::get_instance()->dispatcher->generate_url
+            (
+                'rating_create', array
+                (
+                    'to' => $this->data['parent']->guid
+                ),
+                $this->request
+            )
+        );
+
+        if ($this->request->is_subrequest())
+        {
+            // rating posting form is in a dynamic_load, set parent URL for redirects
+            $root_request = midgardmvc_core::get_instance()->context->get_request(0);
+            $field = $this->form->add_field('relocate', 'text', false);
+            $field->set_value($root_request->get_path());
+            $field->set_widget('hidden');
+        }
+
+        // Basic element information
+        $field = $this->form->add_field('rating', 'integer');
+
+        // Default rating is 0
+        $field->set_value(0);
+
+        if ($this->object->rating > 0)
+        {
+            $field->set_value($this->object->rating);
+        }
+        $widget = $field->set_widget('eu_urho_widgets_starrating');
+        // @todo: get the rating options from configuration
+        $widget->add_option('Very bad', 1);
+        $widget->add_option('Poor', 2);
+        $widget->add_option('Average', 3);
+        $widget->add_option('Good', 4);
+        $widget->add_option('Excellent', 5);
+
+        $field = $this->form->add_field('comment', 'text');
+        $field->set_value('');
+        $widget = $field->set_widget('textarea');
+    }
+
     /**
      * Only process the creation if rating is not null or 0
      */
