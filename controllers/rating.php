@@ -200,7 +200,6 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         $q->add_order(new midgard_query_property('posted', $storage), SORT_DESC);
         $q->execute();
         $ratings = $q->list_objects();
-
         $storage = new midgard_query_storage('com_meego_package_statistics_calculated');
         $q = new midgard_query_select($storage);
         $q->set_constraint
@@ -228,18 +227,11 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                 $rating->stars = '';
                 if ($rating->ratingcomment)
                 {
-                    $comment = new com_meego_comments_comment($rating->ratingcomment);
-                    $rating->ratingcommentcontent = $comment->content;
                     $num_of_comments++;
                 }
                 if (   $rating->rating
                     || $rating->ratingcomment)
                 {
-                    // add a new property containing the stars to the rating object
-                    $rating->stars = $this->draw_stars($rating->rating);
-                    // pimp the posted date
-                    $rating->date = gmdate('Y-m-d H:i e', strtotime($rating->posted));
-
                     $sum += $rating->rating;
                     if ($rating->rating)
                     {
@@ -247,7 +239,6 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                         ++$num_of_valid_ratings;
                     }
                 }
-                array_push($this->data['ratings'], $rating);
             }
 
             if ($num_of_valid_ratings)
@@ -259,10 +250,11 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         if (   count($cache) > 0
             && $cache[0]->ratings != $num_of_valid_ratings)
         {
-            $cache[0]->ratings = $num_of_valid_ratings;
-            $cache[0]->ratingvalue = $this->data['average'];
-            $cache[0]->comments = $num_of_comments;
-            $cache[0]->update();
+            $update = midgard_object_class::get_object_by_guid($cache[0]->guid);
+            $update->ratings = $num_of_valid_ratings;
+            $update->ratingvalue = $this->data['average'];
+            $update->comments = $num_of_comments;
+            $update->update();
         }
         else
         {
