@@ -324,7 +324,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
     public function get_stars($rating)
     {
         $this->data['stars'] = $this->draw_stars($rating);
-        $this->data['stars'] = ' (' . $this->data['numberofratings'] . ')';
+        $this->data['stars'] .= ' (' . $this->data['numberofratings'] . ')';
     }
 
 }

@@ -16,3 +16,9 @@ routes:
         action: create
         template_aliases:
             content: cmr-edit-rating
+    get_average:
+        path: '/stars/{$to}'
+        controller: com_meego_ratings_caching_controllers_rating
+        action: average
+        template_aliases:
+            content: cmr-show-stars
