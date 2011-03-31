@@ -3,7 +3,7 @@
 
     <div tal:condition="com_meego_ratings/can_post">
       <p tal:condition="not: com_meego_ratings/rated" i18n:translate="'first_to_rate'"/>
-      <div class="create-rating" tal:content="structure php:midgardmvc.templating.dynamic_load('com_meego_ratings', 'rating_create', array('to' => com_meego_ratings['to'].guid))"></div>
+      <div class="create-rating" tal:content="structure php:midgardmvc.templating.dynamic_load('com_meego_ratings_caching', 'rating_create', array('to' => com_meego_ratings['to'].guid))"></div>
     </div>
 
     <tal:block tal:define="main_url php:midgardmvc.context.get_request(0).get_path(); url string:/mgd:login?redirect=$main_url">

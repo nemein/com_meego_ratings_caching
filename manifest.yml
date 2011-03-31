@@ -9,7 +9,7 @@ routes:
         controller: com_meego_ratings_caching_controllers_rating
         action: ratings
         template_aliases:
-            content: cmr-show-ratings
+            content: cmr-show-caching-ratings
     rating_create:
         path: '/create/{$to}'
         controller: com_meego_ratings_caching_controllers_rating
