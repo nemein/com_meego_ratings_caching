@@ -107,21 +107,19 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
             foreach ($ratings as $rating)
             {
                 $rating->stars = '';
-                // only return ratings with comments
+                // get comment if available
                 if ($rating->ratingcomment)
                 {
                     $comment = new com_meego_comments_comment($rating->ratingcomment);
                     $rating->ratingcommentcontent = $comment->content;
-
-                    // add a new property containing the stars to the rating object
-                    $rating->stars = $this->draw_stars($rating->rating);
-                    // pimp the posted date
-                    $rating->date = gmdate('Y-m-d H:i e', strtotime($rating->posted));
-                    array_push($this->data['ratings'], $rating);
                 }
+                // add a new property containing the stars to the rating object
+                $rating->stars = $this->draw_stars($rating->rating);
+                // pimp the posted date
+                $rating->date = gmdate('Y-m-d H:i e', strtotime($rating->posted));
+                array_push($this->data['ratings'], $rating);
             }
         }
-
     }
 
     /**
@@ -239,7 +237,8 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
 
         if ( ! $this->data['to'] )
         {
-            throw new midgardmvc_exception_notfound("rating target not found");
+            $_mc = midgard_connection::get_instance();
+            throw new midgardmvc_exception_notfound("Rating target not found: " . $_mc->get_error_string());
         }
 
         $this->data['repository'] = new com_meego_repository($this->data['to']->repository);
