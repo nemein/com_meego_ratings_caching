@@ -34,8 +34,18 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                 $args['to'] = $this->object->to;
                 $this->calculate_average($args);
             }
+
+            if (array_key_exists('relocate', $_POST))
+            {
+                midgardmvc_core::get_instance()->head->relocate($_POST['relocate']);
+            }
+            else
+            {
+                // @todo: thee is a bug in relocate_to_read()
+                // relocate is set in the _POST, but it has no effect
+                $this->relocate_to_read();
+            }
             // TODO: add uimessage of $e->getMessage();
-            $this->relocate_to_read();
         }
         catch (midgardmvc_helper_forms_exception_validation $e)
         {
