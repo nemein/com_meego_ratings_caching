@@ -127,6 +127,45 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                 $rating->stars = $this->draw_stars($rating->rating);
                 // pimp the posted date
                 $rating->date = gmdate('Y-m-d H:i e', strtotime($rating->posted));
+                // avatar part
+                $rating->avatar = false;
+                if ($rating->authorguid)
+                {
+                    $username = null;
+
+                    // get the midgard user name from rating->authorguid
+                    $qb = new midgard_query_builder('midgard_user');
+                    $qb->add_constraint('person', '=', $rating->authorguid);
+
+                    $users = $qb->execute();
+
+                    if (count($users))
+                    {
+                        $username = $users[0]->login;
+                    }
+
+                    unset($qb);
+
+                    if (count($users) > 0)
+                    {
+                        $username = $users[0]->login;
+                    }
+
+                    if (   $username
+                        && $username != 'admin')
+                    {
+                        // get avatar and url to user profile page only if the user is not the midgard admin
+                        try
+                        {
+                            $rating->avatar = midgardmvc_core::get_instance()->dispatcher->generate_url('meego_avatar', array('username' => $username), '/');
+                            $rating->avatarurl = midgardmvc_core::get_instance()->configuration->user_profile_prefix . $username;
+                        }
+                        catch (Exception $e)
+                        {
+                            // no avatar
+                        }
+                    }
+                }
                 array_push($this->data['ratings'], $rating);
             }
         }

@@ -14,8 +14,15 @@
 
     <ul class="list" tal:condition="com_meego_ratings/ratings">
       <li tal:repeat="rating com_meego_ratings/ratings">
-        <span class="firstname" tal:content="rating/authorfirstname">Firstname</span>
-        <span class="lastname" tal:content="rating/authorlastname">Lastname</span>
+        <a class="avatar" tal:condition="true: rating/avatar" tal:attributes="href rating/avatarurl">
+            <img tal:attributes="src rating/avatar" />
+            <span class="firstname" tal:content="rating/authorfirstname">Firstname</span>
+            <span class="lastname" tal:content="rating/authorlastname">Lastname</span>
+        </a>
+        <tal:block tal:condition="not: rating/avatar">
+            <span class="firstname" tal:content="rating/authorfirstname">Firstname</span>
+            <span class="lastname" tal:content="rating/authorlastname">Lastname</span>
+        </tal:block>
         <div class="rating" tal:condition="rating/stars" tal:content="structure rating/stars">First rating</div>
         <div class="comment" tal:condition="rating/ratingcomment" tal:content="rating/ratingcommentcontent">Comment</div>
         <div class="date" tal:content="rating/date">Date</div>
