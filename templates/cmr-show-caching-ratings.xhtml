@@ -8,7 +8,7 @@
 
     <tal:block tal:define="main_url php:midgardmvc.context.get_request(0).get_path(); url string:/mgd:login?redirect=$main_url">
       <p tal:condition="not: com_meego_ratings/can_post">
-        <a tal:attributes="href url" i18n:translate="'login_to_rate'"/>
+        <a tal:attributes="href url" i18n:domain="com_meego_ratings" i18n:translate="'login_to_rate'"/>
       </p>
     </tal:block>
 
