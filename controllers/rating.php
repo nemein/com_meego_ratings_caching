@@ -100,13 +100,13 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         (
             new midgard_query_constraint
             (
-                new midgard_query_property('to', $storage),
+                new midgard_query_property('to'),
                 '=',
                 new midgard_query_value($this->data['to']->guid)
             )
         );
 
-        $q->add_order(new midgard_query_property('posted', $storage), SORT_DESC);
+        $q->add_order(new midgard_query_property('posted'), SORT_DESC);
         $q->execute();
         $ratings = $q->list_objects();
         $this->data['ratings'] = array();
@@ -129,36 +129,20 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                 $rating->date = gmdate('Y-m-d H:i e', strtotime($rating->posted));
                 // avatar part
                 $rating->avatar = false;
+
                 if ($rating->authorguid)
                 {
-                    $username = null;
-
                     // get the midgard user name from rating->authorguid
-                    $qb = new midgard_query_builder('midgard_user');
-                    $qb->add_constraint('person', '=', $rating->authorguid);
+                    $user = com_meego_packages_utils::get_user_by_person_guid($rating->authorguid);
 
-                    $users = $qb->execute();
-
-                    if (count($users))
-                    {
-                        $username = $users[0]->login;
-                    }
-
-                    unset($qb);
-
-                    if (count($users) > 0)
-                    {
-                        $username = $users[0]->login;
-                    }
-
-                    if (   $username
-                        && $username != 'admin')
+                    if (   $user
+                        && $user->login != 'admin')
                     {
                         // get avatar and url to user profile page only if the user is not the midgard admin
                         try
                         {
-                            $rating->avatar = midgardmvc_core::get_instance()->dispatcher->generate_url('meego_avatar', array('username' => $username), '/');
-                            $rating->avatarurl = midgardmvc_core::get_instance()->configuration->user_profile_prefix . $username;
+                            $rating->avatar = midgardmvc_core::get_instance()->dispatcher->generate_url('meego_avatar', array('username' => $user->login), '/');
+                            $rating->avatarurl = midgardmvc_core::get_instance()->configuration->user_profile_prefix . $user->login;
                         }
                         catch (Exception $e)
                         {
@@ -198,24 +182,25 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         (
             new midgard_query_constraint
             (
-                new midgard_query_property('to', $storage),
+                new midgard_query_property('to'),
                 '=',
                 new midgard_query_value($this->data['to']->guid)
             )
         );
 
-        $q->add_order(new midgard_query_property('posted', $storage), SORT_DESC);
+        $q->add_order(new midgard_query_property('posted'), SORT_DESC);
         $q->execute();
         $ratings = $q->list_objects();
+
         $storage = new midgard_query_storage('com_meego_package_statistics_calculated');
         $q = new midgard_query_select($storage);
         $q->set_constraint
         (
             new midgard_query_constraint
             (
-                new midgard_query_property('repository', $storage),
+                new midgard_query_property('packageguid'),
                 '=',
-                new midgard_query_value($this->data['repository']->id)
+                new midgard_query_value($this->data['to']->guid)
             )
         );
 
@@ -226,6 +211,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         // only contains ratings where rating is not 0
         $num_of_valid_ratings = 0;
         $num_of_comments = 0;
+
         if (count($ratings))
         {
             $this->data['rated'] = true;
@@ -258,6 +244,10 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
             && $cache[0]->ratings != $num_of_valid_ratings)
         {
             $update = midgard_object_class::get_object_by_guid($cache[0]->guid);
+            if (! $update->packageguid)
+            {
+                $update->packageguid = $this->data['to']->guid;
+            }
             $update->ratings = $num_of_valid_ratings;
             $update->ratingvalue = $this->data['average'];
             $update->comments = $num_of_comments;
@@ -267,6 +257,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         {
             $cache_record = new com_meego_package_statistics_calculated();
             $cache_record->packagename = $this->data['to']->name;
+            $cache_record->packageguid = $this->data['to']->guid;
             $cache_record->repository = $this->data['repository']->id;
             $cache_record->ratings = $num_of_valid_ratings;
             $cache_record->ratingvalue = $this->data['average'];
@@ -300,9 +291,9 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         (
             new midgard_query_constraint
             (
-                new midgard_query_property('repository', $storage),
+                new midgard_query_property('packageguid'),
                 '=',
-                new midgard_query_value($this->data['repository']->id)
+                new midgard_query_value($this->data['to']->guid)
             )
         );
 
