@@ -141,7 +141,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
                         // get avatar and url to user profile page only if the user is not the midgard admin
                         try
                         {
-                            $rating->avatar = midgardmvc_core::get_instance()->dispatcher->generate_url('meego_avatar', array('username' => $user->login), '/');
+                            $rating->avatar = com_meego_packages_utils::get_avatar($user->login);
                             $rating->avatarurl = midgardmvc_core::get_instance()->configuration->user_profile_prefix . $user->login;
                         }
                         catch (Exception $e)
@@ -240,8 +240,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
             }
         }
 
-        if (   count($cache) > 0
-            && $cache[0]->ratings != $num_of_valid_ratings)
+        if (count($cache) > 0)
         {
             $update = midgard_object_class::get_object_by_guid($cache[0]->guid);
             if (! $update->packageguid)
