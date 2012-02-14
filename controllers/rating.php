@@ -170,7 +170,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
 
         $this->data['repository'] = new com_meego_repository($this->data['to']->repository);
 
-        parent::get_read($args);
+        //com_meego_ratings_controllers_rating::get_read($args);
 
         $this->data['ratings'] = array();
         $this->data['average'] = 0;
@@ -282,7 +282,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
 
         $this->data['repository'] = new com_meego_repository($this->data['to']->repository);
 
-        parent::get_read($args);
+        com_meego_ratings_controllers_rating::get_read($args);
 
         $storage = new midgard_query_storage('com_meego_package_statistics_calculated');
         $q = new midgard_query_select($storage);
@@ -313,7 +313,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
             $this->data['rated'] = true;
         }
 
-        $this->get_stars($this->data['average']);
+        com_meego_ratings_caching_controllers_rating::get_stars($this->data['average']);
     }
 
    /**
