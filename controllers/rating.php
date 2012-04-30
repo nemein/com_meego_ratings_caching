@@ -167,7 +167,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         }
         catch(midgard_error_exception $e)
         {
-            $this->mvc->log(__CLASS__, 'Package with guid: ' . $args['to'] . ' not found. ' . $e->getMessage(), 'error');
+            midgardmvc_core::get_instance()->log(__CLASS__, 'Package with guid: ' . $args['to'] . ' not found. ' . $e->getMessage(), 'error');
             return false;
         }
 
@@ -281,7 +281,7 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
         }
         catch(midgard_error_exception $e)
         {
-            $this->mvc->log(__CLASS__, 'Package with guid: ' . $args['to'] . ' not found. ' . $e->getMessage(), 'error');
+            midgardmvc_core::get_instance()->log(__CLASS__, 'Package with guid: ' . $args['to'] . ' not found. ' . $e->getMessage(), 'error');
             return false;
         }
 
