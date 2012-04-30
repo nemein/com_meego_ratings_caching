@@ -161,11 +161,14 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
      */
     public function calculate_average(array $args)
     {
-        $this->data['to'] = midgard_object_class::get_object_by_guid($args['to']);
-
-        if ( ! $this->data['to'] )
+        try
         {
-            throw new midgardmvc_exception_notfound("rating target not found");
+            $this->data['to'] = midgard_object_class::get_object_by_guid($args['to']);
+        }
+        catch(midgard_error_exception $e)
+        {
+            $this->mvc->log(__CLASS__, 'Package with guid: ' . $args['to'] . ' not found. ' . $e->getMessage(), 'error');
+            return false;
         }
 
         $this->data['repository'] = new com_meego_repository($this->data['to']->repository);
@@ -272,12 +275,14 @@ class com_meego_ratings_caching_controllers_rating extends com_meego_ratings_con
      */
     public function get_average(array $args)
     {
-        $this->data['to'] = midgard_object_class::get_object_by_guid($args['to']);
-
-        if ( ! $this->data['to'] )
+        try
         {
-            $_mc = midgard_connection::get_instance();
-            throw new midgardmvc_exception_notfound("Rating target not found: " . $_mc->get_error_string());
+            $this->data['to'] = midgard_object_class::get_object_by_guid($args['to']);
+        }
+        catch(midgard_error_exception $e)
+        {
+            $this->mvc->log(__CLASS__, 'Package with guid: ' . $args['to'] . ' not found. ' . $e->getMessage(), 'error');
+            return false;
         }
 
         $this->data['repository'] = new com_meego_repository($this->data['to']->repository);
